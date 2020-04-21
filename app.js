@@ -115,7 +115,7 @@ var UIController = (function(){
             return DOMstrings
         },
         
-        getInput: function() {
+        getUserInput: function() {
             var inputObj = {
                 type: document.querySelector(DOMstrings.inputType).value, 
                 desc: document.querySelector(DOMstrings.inputDesc).value, 
@@ -124,11 +124,23 @@ var UIController = (function(){
             return inputObj
         },
         
+        getSwitchInput: function(item, type) {
+            var valstr = item.querySelector('.item__value').textContent;
+            var value = parseFloat(valstr.split(' ')[1]);
+//            console.log(valstr, value);
+            var inputObj = {
+                type: type, 
+                desc: item.querySelector('.item__description').textContent,
+                value: value
+                };
+            return inputObj
+        },
+        
         addListItem: function(obj, type) {
             var htmlstr;
             
             if (type === 'inc') {
-                htmlStr = '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%desc%</div> <div class="right clearfix"> <div class="item__value">+ %value%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div> </div> </div>';
+                htmlStr = '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%desc%</div> <div class="right clearfix"> <div class="item__value">+ %value%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div><div class="item__switch"><button class="item__switch--btn"><i class="ion-arrow-swap"></i></button></div> </div></div>';
             } else {
                 htmlStr = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">%pc%/%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
                 var pc = obj.calcPercent();
@@ -188,7 +200,7 @@ var controller = (function(budgetControl, UIControl){
                 }
             });
         
-            document.querySelector(DOMstrings.incExpContainer).addEventListener('click', ctrlDelItem);
+            document.querySelector(DOMstrings.incExpContainer).addEventListener('click', ctrlChangeItem);
             
     };
     
@@ -199,7 +211,7 @@ var controller = (function(budgetControl, UIControl){
     };
     
     var ctrlAddItem = function(){
-        input = UIControl.getInput();
+        input = UIControl.getUserInput();
         if (input.desc !== 'test' && !isNaN(input.value) && input.value > 0) {
             item = budgetControl.addItem(input);
             UIControl.addListItem(item, input.type);
@@ -208,20 +220,44 @@ var controller = (function(budgetControl, UIControl){
 //        console.log(item)
     };
     
-    var ctrlDelItem = function(event){
+    var ctrlChangeItem = function(event){
         var itemIdStr = event.target.parentNode.parentNode.parentNode.parentNode.id;
+        var actionType = event.target.parentNode.parentNode.className;
+        var element = event.target.parentNode.parentNode.parentNode.parentNode;
+        
         if (itemIdStr) {
             var itemIdStrSplit = itemIdStr.split('-');
             var itemId = parseInt(itemIdStrSplit[1]);
             var type = itemIdStrSplit[0];
-//            console.log(itemId, type);
-            budgetControl.delItem(itemId, type);
-            UIControl.delListItem(itemIdStr);
+
+            if (actionType === 'item__delete') {
+                ctrlDelItem(itemIdStr, itemId, type);
+            } else if (actionType === 'item__switch') {
+                console.log('item switch detected');
+                console.log(element);
+                ctrlSwitchItem(element, itemIdStr, itemId, type);
+            }
             updateBudget();
         }
     };
     
-
+    var ctrlDelItem = function(itemIdStr, itemId, type){
+        budgetControl.delItem(itemId, type);
+        UIControl.delListItem(itemIdStr);
+    };
+    
+    var ctrlSwitchItem = function(element, itemIdStr, itemId, type){
+        input = UIControl.getSwitchInput(element, type);
+        ctrlDelItem(itemIdStr, itemId, type);
+        
+        if (input.type === 'inc') {
+            input.type = 'exp';
+        } else {
+            input.type = 'inc';
+        }
+        item = budgetControl.addItem(input);
+        UIControl.addListItem(item, input.type);
+    };
 
     return {
         init: function() {
@@ -233,8 +269,3 @@ var controller = (function(budgetControl, UIControl){
 
 controller.init();
 
-
-/*
-delete item
-convert income to expense
-*/
