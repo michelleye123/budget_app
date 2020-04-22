@@ -264,24 +264,24 @@ var controller = (function(budgetControl, UIControl){
     };
     
     var ctrlChangeItem = function(event){
-        var itemIdStr = event.target.parentNode.parentNode.parentNode.parentNode.id;
-        var actionType = event.target.parentNode.parentNode.className;
-        var element = event.target.parentNode.parentNode.parentNode.parentNode;
+        const obj = event.target.parentNode.parentNode;
+        var actionType = obj.className;
+        var element = obj.parentNode.parentNode;
+        var itemIdStr = element.id;
         
-        if (itemIdStr) {
-            var itemIdStrSplit = itemIdStr.split('-');
-            var itemId = parseInt(itemIdStrSplit[1]);
-            var type = itemIdStrSplit[0];
-
+        if (itemIdStr) { 
+            let [type, itemId] = itemIdStr.split('-');
+            itemId = parseInt(itemId);
+            
             if (actionType === 'item__delete') {
                 ctrlDelItem(itemIdStr, itemId, type);
+            
             } else if (actionType === 'item__switch') {
-                console.log('item switch detected');
+//                console.log('item switch detected');
                 console.log(element);
                 ctrlSwitchItem(element, itemIdStr, itemId, type);
             }
             updateBudget();
-            
             updatePercent();
         }
     };

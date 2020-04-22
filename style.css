@@ -235,6 +235,9 @@ h2 {
 .income .item__delete--btn {
     color: #28B9B5;
 }
+.income .item__switch--btn {
+    color: #FF5049;
+}
 
 .expenses .item__value,
 .expenses .item__percentage,
