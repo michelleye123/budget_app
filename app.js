@@ -129,6 +129,14 @@ var UIController = (function(){
         expPcLabel: '.item__percentage'
     };
     
+    function updateTotalFontSize(available,maxavailable,minfontsize,maxfontsize) {
+        console.log(available);
+        let fsize = Math.round((maxavailable-minfontsize)*available/maxavailable);
+        fsize = Math.max(minfontsize, fsize);
+        fsize = Math.min(maxfontsize, fsize);
+        document.querySelector(DOMstrings.availableLabel).style.fontSize = fsize+'px';
+    }
+    
     return {
         getDOMstrings: function() {
             return DOMstrings
@@ -200,6 +208,7 @@ var UIController = (function(){
             } else {
                 document.querySelector(DOMstrings.expensespcLabel).textContent = '';
             }
+            updateTotalFontSize(totals.available,1000,16,100);
         },
         
         updatePercents: function(percents) {
@@ -217,7 +226,17 @@ var UIController = (function(){
                 //
                 current.textContent = percents[index] + '%';
             });
+        },
+        
+        toggleInputOutlines: function() {
+            arr = ['inputType', 'inputDesc', 'inputValue'];
+            arr.forEach(s => {
+                o = document.querySelector(DOMstrings[s])
+                o.classList.toggle('red-focus');
+            })
+            document.querySelector(DOMstrings.addButton).classList.toggle('red');
         }
+                
     }
 })();
 
@@ -229,14 +248,13 @@ var controller = (function(budgetControl, UIControl){
     
     var setupEventListeners = function() {
             document.querySelector(DOMstrings.addButton).addEventListener('click', ctrlAddItem);
-    
             document.addEventListener('keypress', function(event) {
                 if (event.code === 'Enter'){
                     ctrlAddItem();
                 }
             });
-        
             document.querySelector(DOMstrings.incExpContainer).addEventListener('click', ctrlChangeItem);
+            document.querySelector(DOMstrings.inputType).addEventListener('change', UIControl.toggleInputOutlines);
             
     };
     
@@ -274,27 +292,28 @@ var controller = (function(budgetControl, UIControl){
             itemId = parseInt(itemId);
             
             if (actionType === 'item__delete') {
-                ctrlDelItem(itemIdStr, itemId, type);
+                _ctrlDelItem(itemIdStr, itemId, type);
             
             } else if (actionType === 'item__switch') {
 //                console.log('item switch detected');
                 console.log(element);
-                ctrlSwitchItem(element, itemIdStr, itemId, type);
+                _ctrlSwitchItem(element, itemIdStr, itemId, type);
             }
             updateBudget();
             updatePercent();
         }
     };
     
-    var ctrlDelItem = function(itemIdStr, itemId, type){
+
+    var _ctrlDelItem = function(itemIdStr, itemId, type){
         budgetControl.delItem(itemId, type);
         UIControl.delListItem(itemIdStr);
     };
-    
-    var ctrlSwitchItem = function(element, itemIdStr, itemId, type){
+
+    var _ctrlSwitchItem = function(element, itemIdStr, itemId, type){
         input = UIControl.getSwitchInput(element, type);
-        ctrlDelItem(itemIdStr, itemId, type);
-        
+        _ctrlDelItem(itemIdStr, itemId, type);
+
         if (input.type === 'inc') {
             input.type = 'exp';
         } else {
