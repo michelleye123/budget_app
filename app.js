@@ -1,6 +1,6 @@
-var budgetController = (function() {
+const budgetController = (function() {
     
-    var data = {
+    const data = {
         allItems: {
             inc: [],
             exp: []
@@ -13,21 +13,21 @@ var budgetController = (function() {
         percentage: -1
     };
     
-    var Income = function(id, desc, value){
+    const Income = function(id, desc, value){
         this.id = id;
         this.desc = desc;
         this.value = value;
     };
     
-    var Expense = function (id, desc, value){
+    const Expense = function (id, desc, value){
         this.id = id;
         this.desc = desc;
         this.value = value;
         this.pc = -1;
     };
     
-    var calcTotal = function(type) {
-        var sum = 0;
+    const calcTotal = function(type) {
+        let sum = 0;
         data.allItems[type].forEach(function(cur) {
             sum += cur.value;
         });
@@ -44,7 +44,7 @@ var budgetController = (function() {
         return this.pc
     }
 
-    return {    // this {} OBJECT is assigned to the budgetController variable, after the IIFE returns
+    return {    // this {} OBJECT is assigned to the budgetController constiable, after the IIFE returns
         addItem: function(input) {
             if (data.allItems[input.type].length > 0) {
                 lastindex = data.allItems[input.type].length - 1;
@@ -53,10 +53,12 @@ var budgetController = (function() {
                 id = 0;
             }
             
+            let newItem;
+            
             if (input.type === 'inc') {
-                var newItem = new Income(id, input.desc, input.value);
+                newItem = new Income(id, input.desc, input.value);
             } else {
-                var newItem = new Expense(id, input.desc, input.value);
+                newItem = new Expense(id, input.desc, input.value);
             }
             
             data.allItems[input.type].push(newItem);
@@ -66,11 +68,11 @@ var budgetController = (function() {
         },
         
         delItem: function(itemId, type) {
-            var ids = data.allItems[type].map(function(cur){
+            const ids = data.allItems[type].map(function(cur){
                 return cur.id;
             })
             
-            var index = ids.indexOf(itemId);
+            const index = ids.indexOf(itemId);
             
             if (index !== -1){
                 data.allItems[type].splice(index, 1);
@@ -93,7 +95,7 @@ var budgetController = (function() {
         },
         
         getPercent: function() {
-            var allPc = data.allItems.exp.map(function(cur){
+            const allPc = data.allItems.exp.map(function(cur){
                 return cur.getPercent()
             })
             return allPc
@@ -113,9 +115,9 @@ var budgetController = (function() {
 })();
 
 
-var UIController = (function(){
+const UIController = (function(){
 
-    var DOMstrings = {
+    const DOMstrings = {
         inputType: '.add__type',
         inputDesc: '.add__description',
         inputValue: '.add__value',
@@ -143,7 +145,7 @@ var UIController = (function(){
         },
         
         getUserInput: function() {
-            var inputObj = {
+            const inputObj = {
                 type: document.querySelector(DOMstrings.inputType).value, 
                 desc: document.querySelector(DOMstrings.inputDesc).value, 
                 value: parseFloat(document.querySelector(DOMstrings.inputValue).value)
@@ -152,10 +154,10 @@ var UIController = (function(){
         },
         
         getSwitchInput: function(item, type) {
-            var valstr = item.querySelector('.item__value').textContent;
-            var value = parseFloat(valstr.split(' ')[1]);
+            const valstr = item.querySelector('.item__value').textContent;
+            const value = parseFloat(valstr.split(' ')[1]);
 //            console.log(valstr, value);
-            var inputObj = {
+            const inputObj = {
                 type: type, 
                 desc: item.querySelector('.item__description').textContent,
                 value: value
@@ -164,13 +166,13 @@ var UIController = (function(){
         },
         
         addListItem: function(obj, type) {
-            var htmlstr;
+            let htmlstr;
             
             if (type === 'inc') {
                 htmlStr = '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%desc%</div> <div class="right clearfix"> <div class="item__value">+ %value%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div><div class="item__switch"><button class="item__switch--btn"><i class="ion-arrow-swap"></i></button></div> </div></div>';
             } else {
                 htmlStr = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">%pc%/%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
-//                var pc = obj.calcPercent();
+//                const pc = obj.calcPercent();
 //                htmlStr = htmlStr.replace('%pc%', pc);
             }
             
@@ -184,7 +186,7 @@ var UIController = (function(){
         },
         
         clearFields: function() {
-            var fields;
+            let fields;
             fields = document.querySelectorAll(DOMstrings.inputDesc + ', ' + DOMstrings.inputValue);
             fieldsArr = Array.prototype.slice.call(fields); // trick to convert list to array
 //            fieldsArr.forEach(function(current, index, array){
@@ -194,7 +196,7 @@ var UIController = (function(){
         },
         
         delListItem: function(elemId){
-            var element = document.getElementById(elemId);
+            const element = document.getElementById(elemId);
             element.parentNode.removeChild(element);
         },
         
@@ -213,11 +215,11 @@ var UIController = (function(){
         
         updatePercents: function(percents) {
             //
-            var fields = document.querySelectorAll(DOMstrings.expPcLabel);
+            const fields = document.querySelectorAll(DOMstrings.expPcLabel);
 //            console.log(fields);
             
-            var nodeListForEach = function(nodelist, callback) {
-                for (var i=0; i<nodelist.length; i++){
+            const nodeListForEach = function(nodelist, callback) {
+                for (let i=0; i<nodelist.length; i++){
                     callback(nodelist[i], i);
                 }
             }
@@ -241,12 +243,12 @@ var UIController = (function(){
 })();
 
 
-var controller = (function(budgetControl, UIControl){
-    var input, item, totals;
+const controller = (function(budgetControl, UIControl){
+    let input, item, totals;
     
-    var DOMstrings = UIControl.getDOMstrings();
+    const DOMstrings = UIControl.getDOMstrings();
     
-    var setupEventListeners = function() {
+    const setupEventListeners = function() {
             document.querySelector(DOMstrings.addButton).addEventListener('click', ctrlAddItem);
             document.addEventListener('keypress', function(event) {
                 if (event.code === 'Enter'){
@@ -258,19 +260,19 @@ var controller = (function(budgetControl, UIControl){
             
     };
     
-    var updateBudget= function(){
+    const updateBudget= function(){
         budgetControl.calcBudget();
         totals = budgetControl.getBudget();
         UIControl.updateTotals(totals);
     };
     
-    var updatePercent = function() {
+    const updatePercent = function() {
         budgetControl.calcPercent();
-        var percents = budgetControl.getPercent();
+        const percents = budgetControl.getPercent();
         UIControl.updatePercents(percents);
     }
     
-    var ctrlAddItem = function(){
+    const ctrlAddItem = function(){
         input = UIControl.getUserInput();
         if (input.desc !== 'test' && !isNaN(input.value) && input.value > 0) {
             item = budgetControl.addItem(input);
@@ -281,11 +283,11 @@ var controller = (function(budgetControl, UIControl){
 //        console.log(item)
     };
     
-    var ctrlChangeItem = function(event){
+    const ctrlChangeItem = function(event){
         const obj = event.target.parentNode.parentNode;
-        var actionType = obj.className;
-        var element = obj.parentNode.parentNode;
-        var itemIdStr = element.id;
+        const actionType = obj.className;
+        const element = obj.parentNode.parentNode;
+        const itemIdStr = element.id;
         
         if (itemIdStr) { 
             let [type, itemId] = itemIdStr.split('-');
@@ -305,12 +307,12 @@ var controller = (function(budgetControl, UIControl){
     };
     
 
-    var _ctrlDelItem = function(itemIdStr, itemId, type){
+    const _ctrlDelItem = function(itemIdStr, itemId, type){
         budgetControl.delItem(itemId, type);
         UIControl.delListItem(itemIdStr);
     };
 
-    var _ctrlSwitchItem = function(element, itemIdStr, itemId, type){
+    const _ctrlSwitchItem = function(element, itemIdStr, itemId, type){
         input = UIControl.getSwitchInput(element, type);
         _ctrlDelItem(itemIdStr, itemId, type);
 
